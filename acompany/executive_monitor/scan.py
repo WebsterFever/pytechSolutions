@@ -48,7 +48,7 @@ def scan_sector(path: Path, old_state: dict):
             elif old_files[rel] != mtime:
                 changes.append(f"✏️ MODIFIED {rel}")
 
-    # Detect deletions
+    # Deletions
     for f in old_files:
         if f not in new_files:
             changes.append(f"🗑️ DELETED FILE {f}")
@@ -65,16 +65,22 @@ def scan_sector(path: Path, old_state: dict):
     return changes, new_state
 
 
+def discover_sectors():
+    """
+    Auto-detect all company sectors.
+    Example: b_Software-Development, c_Data-Science-AI, etc.
+    """
+    sectors = {}
+    for p in ROOT.iterdir():
+        if p.is_dir() and "_" in p.name:
+            name = p.name.split("_", 1)[1].replace("-", " ")
+            sectors[name] = p
+    return sectors
+
+
 def main():
     state = load_state()
-
-    sectors = {
-        "Software Development": ROOT / "b_Software-Development",
-        "Data Science": ROOT / "c_Data-Science-AI",
-        "IT Infrastructure": ROOT / "d_IT-Infrastructure",
-        "Sales": ROOT / "f_Sales",
-        "Algorithms": ROOT / "k_Algorithm-Office",
-    }
+    sectors = discover_sectors()
 
     print("\n📊 DAILY PROJECT SCAN")
     print(f"🕒 {datetime.now()}\n")
